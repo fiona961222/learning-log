@@ -8,6 +8,7 @@
   const logMessage = document.querySelector('#log-message');
   const recordsMessage = document.querySelector('#records-message');
   const recordList = document.querySelector('#record-list');
+  const recentSummary = document.querySelector('#recent-summary');
   const loginButton = document.querySelector('#login-button');
   const signupButton = document.querySelector('#signup-button');
   let supabase;
@@ -59,6 +60,7 @@
   function renderRecords(records) {
     recordList.replaceChildren();
     document.querySelector('#record-count').textContent = `${records.length} 筆紀錄`;
+    updateRecentSummary(records);
     if (!records.length) {
       const empty = document.createElement('div');
       empty.className = 'empty-state';
@@ -96,6 +98,16 @@
       card.append(actions);
       recordList.append(card);
     }
+  }
+
+  function updateRecentSummary(records) {
+    const today = localToday();
+    const start = new Date();
+    start.setDate(start.getDate() - 6);
+    const startDate = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`;
+    const recentRecords = records.filter(record => record.log_date >= startDate && record.log_date <= today);
+    const totalMinutes = recentRecords.reduce((total, record) => total + (Number(record.minutes) || 0), 0);
+    recentSummary.textContent = `最近 7 天：${totalMinutes} 分鐘，${recentRecords.length} 筆紀錄`;
   }
 
   function formatDate(dateString) {
